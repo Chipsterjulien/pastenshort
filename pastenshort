@@ -174,9 +174,9 @@ def shorten(url):
 
 def show():
     """It show supported languages."""
-    
+
     if len(sys.argv) < 2:
-		return
+        return
 
     if not('--show' in sys.argv or '-s' in sys.argv):
         return
