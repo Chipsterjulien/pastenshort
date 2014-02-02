@@ -123,6 +123,8 @@ def get_arguments():
                       the highlight language on bpaste")
     args.add_argument('-p', '--public', action="store_true",
                       help="Define paste is public")
+    args.add_argument('-n', '--no-short', action="store_true", help="Not \
+                      short url")
     args.add_argument('-s', '--show', action="store_true", help="Print \
                       supported languages")
 
@@ -160,6 +162,10 @@ def paste(text, *args, **kwargs):
 
     if 'public' in kwargs and kwargs['public']:
         payload['private'] = 'off'
+
+    if 'no_short' in kwargs and kwargs['no_short']:
+        print(requests.post('http://bpaste.net', payload).url)
+        sys.exit()
 
     return requests.post('http://bpaste.net', payload).url
 
