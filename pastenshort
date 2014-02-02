@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
+"""It paste a file and short the url."""
+
+
+import sys
+import requests
+import argparse
+
+# Dict of supported languages highlight
+LANGUAGE_DICT = {"abap": "ABAP", "as": "ActionScript", "as3": "ActionScript 3",
+                 "ada": "Ada", "antlr": "ANTLR",
+                 "antlr-as": "ANTLR With ActionScript Target",
+                 "antlr-csharp": "ANTLR With C# Target",
+                 "antlr-cpp": "ANTLR With CPP Target",
+                 "antlr-java": "ANTLR With Java Target",
+                 "antlr-objc": "ANTLR With ObjectiveC Target",
+                 "antlr-perl": "ANTLR With Perl Target",
+                 "antlr-python": "ANTLR With Python Target",
+                 "antlr-ruby": "ANTLR With Ruby Target",
+                 "apacheconf": "ApacheConf", "applescript": "AppleScript",
+                 "aspx-cs": "aspx-cs", "aspx-vb": "aspx-vb",
+                 "asy": "Asymptote", "ahk": "autohotkey", "bash": "Bash",
+                 "console": "Bash Session", "bat": "Batchfile",
+                 "bbcode": "BBCode", "befunge": "Befunge",
+                 "blitzmax": "BlitzMax", "boo": "Boo",
+                 "brainfuck": "Brainfuck", "c": "C", "csharp": "C#",
+                 "cpp": "C++", "c-objdump": "c-objdump", "cfs": "cfstatement",
+                 "cheetah": "Cheetah", "clojure": "Clojure", "cmake": "CMake",
+                 "coffee-script": "CoffeeScript", "cfm": "Coldfusion HTML",
+                 "common-lisp": "Common Lisp", "cpp-objdump": "cpp-objdump",
+                 "creole": "Creole Wiki", "css": "CSS",
+                 "css+django": "CSS+Django/Jinja",
+                 "css+genshitext": "CSS+Genshi Text", "css+mako": "CSS+Mako",
+                 "css+myghty": "CSS+Myghty", "css+php": "CSS+PHP",
+                 "css+erb": "CSS+Ruby", "css+smarty": "CSS+Smarty",
+                 "csv": "CSV", "cython": "Cython", "d": "D",
+                 "d-objdump": "d-objdump", "dpatch": "Darcs Patch",
+                 "control": "Debian Control file",
+                 "sourceslist": "Debian Sourcelist", "delphi": "Delphi",
+                 "django": "Django/Jinja", "duel": "Duel", "dylan": "Dylan",
+                 "ragel-em": "Embedded Ragel", "erb": "ERB",
+                 "erlang": "Erlang", "erl": "Erlang erl session",
+                 "evoque": "Evoque", "factor": "Factor", "felix": "Felix",
+                 "fortran": "Fortran", "gas": "GAS",
+                 "gcc-messages": "GCC Messages", "genshi": "Genshi",
+                 "genshitext": "Genshi Text", "pot": "Gettext Catalog",
+                 "Cucumber": "Gherkin", "glsl": "GLSL", "gnuplot": "Gnuplot",
+                 "go": "Go", "gooddata-cl": "GoodData-CL", "groff": "Groff",
+                 "haml": "Haml", "haskell": "Haskell", "hx": "haXe",
+                 "html": "HTML", "html+cheetah": "HTML+Cheetah",
+                 "html+django": "HTML+Django/Jinja",
+                 "html+evoque": "HTML+Evoque", "html+genshi": "HTML+Genshi",
+                 "html+mako": "HTML+Mako", "html+myghty": "HTML+Myghty",
+                 "html+php": "HTML+PHP", "html+smarty": "HTML+Smarty",
+                 "html+velocity": "HTML+Velocity", "hybris": "Hybris",
+                 "ini": "INI", "io": "Io", "ioke": "Ioke", "irc": "IRC logs",
+                 "jade": "Jade", "java": "Java", "jsp": "Java Server Page",
+                 "javac-messages": "javac Messages", "js": "JavaScript",
+                 "js+cheetah": "JavaScript+Cheetah",
+                 "js+django": "JavaScript+Django/Jinja",
+                 "js+genshitext": "JavaScript+Genshi Text",
+                 "js+mako": "JavaScript+Mako",
+                 "js+myghty": "JavaScript+Myghty", "js+php": "JavaScript+PHP",
+                 "js+erb": "JavaScript+Ruby", "js+smarty": "JavaScript+Smarty",
+                 "lighty": "Lighttpd configuration file",
+                 "lhs": "Literate Haskell", "llvm": "LLVM",
+                 "logtalk": "Logtalk", "lua": "Lua", "basemake": "Makefile",
+                 "make": "Makefile", "mako": "Mako", "maql": "MAQL",
+                 "mason": "Mason", "matlab": "Matlab",
+                 "matlabsession": "Matlab session", "minid": "MiniD",
+                 "modelica": "Modelica", "modula2": "Modula-2",
+                 "trac-wiki": "MoinMoin/Trac Wiki markup",
+                 "moocode": "MOOCode", "multi": "Multi-File", "mupad": "MuPAD",
+                 "mxml": "MXML", "myghty": "Myghty", "mysql": "MySQL",
+                 "nasm": "NASM", "newspeak": "Newspeak",
+                 "nginx": "Nginx configuration file", "numpy": "NumPy",
+                 "objdump": "objdump", "objective-c": "Objective-C",
+                 "objective-j": "Objective-J", "ocaml": "OCaml", "ooc": "Ooc",
+                 "perl": "Perl", "php": "PHP", "postscript": "PostScript",
+                 "pov": "POVRay", "prolog": "Prolog",
+                 "properties": "Properties", "protobuf": "Protocol Buffer",
+                 "python": "Python", "python3": "Python 3",
+                 "py3tb": "Python 3.0 Traceback",
+                 "pycon": "Python console session", "pytb": "Python Traceback",
+                 "ragel": "Ragel", "ragel-c": "Ragel in C Host",
+                 "ragel-cpp": "Ragel in CPP Host",
+                 "ragel-d": "Ragel in D Host",
+                 "ragel-java": "Ragel in Java Host",
+                 "ragel-objc": "Ragel in Objective C Host",
+                 "ragel-ruby": "Ragel in Ruby Host", "raw": "Raw token data",
+                 "rconsole": "RConsole", "rebol": "REBOL",
+                 "redcode": "Redcode", "rst": "reStructuredText",
+                 "rhtml": "RHTML", "rb": "Ruby", "rbcon": "Ruby irb session",
+                 "splus": "S", "sass": "Sass", "scala": "Scala",
+                 "ssp": "Scalate Server Page", "scaml": "Scaml",
+                 "scheme": "Scheme", "scss": "SCSS", "smalltalk": "Smalltalk",
+                 "smarty": "Smarty", "sql": "SQL", "sqlite3": "sqlite3con",
+                 "squidconf": "SquidConf", "tcl": "Tcl", "tcsh": "Tcsh",
+                 "tex": "TeX", "text": "Text only", "diff": "Unified Diff",
+                 "vala": "Vala", "vb.net": "VB.net", "velocity": "Velocity",
+                 "v": "verilog", "vim": "VimL", "xml": "XML",
+                 "xml+cheetah": "XML+Cheetah",
+                 "xml+django": "XML+Django/Jinja", "xml+evoque": "XML+Evoque",
+                 "xml+mako": "XML+Mako", "xml+myghty": "XML+Myghty",
+                 "xml+php": "XML+PHP", "xml+erb": "XML+Ruby",
+                 "xml+smarty": "XML+Smarty", "xml+velocity": "XML+Velocity",
+                 "xquery": "XQuery", "xslt": "XSLT", "yaml": "YAML"}
+
+
+def get_arguments():
+    """Handling arguments using argparse.
+    It return an argparse object
+
+    """
+
+    args = argparse.ArgumentParser(description="Paste a file to bpaste and \
+                                   shorten url on is.gd")
+    args.add_argument('file', type=str, help="File to paste")
+    args.add_argument('-l', '--language', type=str, help="Define \
+                      the highlight language on bpaste")
+    args.add_argument('-p', '--public', action="store_true",
+                      help="Define paste is public")
+    args.add_argument('-s', '--show', action="store_true", help="Print \
+                      supported languages")
+
+    return args.parse_args()
+
+
+def load_file(*args, **kwargs):
+    """It read file that is passed as an argument.
+    It return a string.
+
+    """
+
+    if 'file' not in kwargs or kwargs['file'] is None:
+        print('No file to paste !')
+        sys.exit(2)
+
+    with open(kwargs['file'], 'r') as src:
+        return ''.join([line for line in src])
+
+
+def paste(text, *args, **kwargs):
+    """It paste text argument on bpaste.net.
+    It return an url.
+
+    """
+
+    payload = {'code': text, 'language': 'text', 'private': 'on'}
+
+    if 'language' in kwargs and kwargs['language'] is not None:
+        if kwargs['language'] in LANGUAGE_DICT:
+            payload['language'] = kwargs['language']
+        else:
+            print("{0} isn't recognised ! Using \"text only\"".format(
+                kwargs['language']))
+
+    if 'public' in kwargs and kwargs['public']:
+        payload['private'] = 'off'
+
+    return requests.post('http://bpaste.net', payload).url
+
+
+def shorten(url):
+    """It reduces the url that passed as a paramater and print it"""
+
+    payload = {'format': 'simple', 'url': url}
+    r = requests.get('http://is.gd/create.php', params=payload)
+    print(r.text)
+
+
+def show(*args, **kwargs):
+    """It show supported languages."""
+
+    if 'show' in kwargs and not kwargs['show']:
+        return
+
+    for l, k in LANGUAGE_DICT.items():
+        print("{1}: \"{2}\"".format(l, k))
+    sys.exit()
+
+
+def main():
+    opts = vars(get_arguments())
+    show(**opts)
+    text = load_file(**opts)
+    url = paste(text, **opts)
+    shorten(url)
+
+
+if __name__ == "__main__":
+    main()
