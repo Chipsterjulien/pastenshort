@@ -140,7 +140,7 @@ def load_file(*args, **kwargs):
         sys.exit(2)
 
     with open(kwargs['file'], 'r') as src:
-        return ''.join([line for line in src])
+        return ''.join((line for line in src))
 
 
 def paste(text, *args, **kwargs):
