@@ -172,20 +172,20 @@ def shorten(url):
     print(r.text)
 
 
-def show(*args, **kwargs):
+def show():
     """It show supported languages."""
 
-    if 'show' in kwargs and not kwargs['show']:
+    if not('--show' in sys.argv or '-s' in sys.argv):
         return
 
     for l, k in LANGUAGE_DICT.items():
-        print("{1}: \"{2}\"".format(l, k))
+        print("{1}: \"{0}\"".format(l, k))
     sys.exit()
 
 
 def main():
+    show()
     opts = vars(get_arguments())
-    show(**opts)
     text = load_file(**opts)
     url = paste(text, **opts)
     shorten(url)

@@ -1,4 +1,5 @@
 ** Changelog
 
    v0.1 - Birthday
+        - Solve 2 bugs (don't show list and an error with -s/--show parameter)
 **
