@@ -1,7 +1,7 @@
 pastenshort
 ====
 
-It move pictures (by default) into year/month directory
+It paste a file and short the url.
 
 Depend
 ======
