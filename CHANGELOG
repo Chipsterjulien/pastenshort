@@ -3,4 +3,5 @@
    v0.1 - Birthday
         - Solve 2 bugs (don't show list and an error with -s/--show parameter)
         - Reduce memory usage with genexp (Thx Mo0O)
+        - Solve a bug when no parameter were given
 **
